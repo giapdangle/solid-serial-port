@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
@@ -20,6 +21,8 @@ namespace SolidSerialPort
         void Write(byte[] buffer, int offset, int count);
         int ReadTimeout { get; set; }
         int WriteTimeout { get; set; }
+        [MonitoringDescription("SerialDataReceived")]
+        event SerialDataReceivedEventHandler DataReceived;
     }
 
 	// Wrapper around SerialPort
@@ -27,6 +30,7 @@ namespace SolidSerialPort
     {
         readonly SerialPort _port;
         readonly Stream _internalSerialStream;
+        public event SerialDataReceivedEventHandler DataReceived;
 
         public SolidSerialPort(SerialPortConfig portConfig)
         {
@@ -55,6 +59,7 @@ namespace SolidSerialPort
                 this._port = port;
                 this._port.DiscardInBuffer();
                 this._port.DiscardOutBuffer();
+                port.DataReceived += port_DataReceived;
             }
             catch (Exception ex)
             {
@@ -92,6 +97,8 @@ namespace SolidSerialPort
                 throw;
             }
         }
+
+
         public bool IsOpen { get { return _port.IsOpen; } }
         public int ReadTimeout { get; set; }
         public int WriteTimeout { get; set; }
@@ -120,6 +127,19 @@ namespace SolidSerialPort
         {
             this._port.Write(text);
             this._port.Write("\r");
+        }
+
+        /// <summary>
+        /// Passthrough for internal port DataReceived event
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void port_DataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            if (DataReceived != null)
+            {
+                DataReceived(sender, e);
+            }
         }
 
         public void Dispose()

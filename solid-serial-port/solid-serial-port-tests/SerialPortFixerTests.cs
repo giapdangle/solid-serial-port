@@ -19,5 +19,26 @@ namespace SolidSerialPort.Tests
             {
             }
         }
+
+        [TestMethod]
+        public void ValidPortSuccess()
+        {
+            var ports = System.IO.Ports.SerialPort.GetPortNames();
+            if (ports.Length > 0)
+            {
+                try
+                {
+                    SerialPortFixer.Execute(ports[0]);
+                }
+                catch (Exception)
+                {
+                    Assert.Fail();
+                }
+            }
+            else
+            {
+                Assert.Inconclusive();
+            }
+        }
     }
 }
