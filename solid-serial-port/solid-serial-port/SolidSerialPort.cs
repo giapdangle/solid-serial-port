@@ -18,6 +18,7 @@ namespace SolidSerialPort
         void WriteLine(string text);
         bool IsOpen { get; }
         int ReadByte();
+        int Read(byte[] buffer, int offset, int count);
         void Write(byte[] buffer, int offset, int count);
         int ReadTimeout { get; set; }
         int WriteTimeout { get; set; }
@@ -106,6 +107,11 @@ namespace SolidSerialPort
         public int ReadByte()
         {
             return _port.ReadByte();
+        }
+
+        public int Read(byte[] buffer, int offset, int count)
+        {
+            return _port.Read(buffer, offset, count);
         }
 
         public void Write(byte[] buffer, int offset, int count)
